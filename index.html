@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>청년 로컬창업 바우처 심사 페이지</title>
+<style>
+:root{--navy:#17324d;--blue:#2d5b83;--bg:#f4f7fb;--line:#dce4ed;--text:#1d2939;--muted:#667085}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,"Malgun Gothic",sans-serif;color:var(--text)}
+header{background:linear-gradient(120deg,#17324d,#2e628c);color:#fff;padding:28px max(22px,calc((100% - 1400px)/2))}
+.kicker{font-size:12px;letter-spacing:.12em;opacity:.8;font-weight:700}h1{font-size:clamp(23px,3vw,32px);margin:8px 0}header p{margin:0;color:#dbe8f4}
+main{max-width:1400px;margin:24px auto;padding:0 20px 44px}
+.summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.metric{background:#fff;border:1px solid var(--line);border-radius:14px;padding:17px;box-shadow:0 2px 7px #16324d08}
+.metric .label{font-size:13px;color:var(--muted);font-weight:650}.metric .value{font-size:27px;font-weight:800;margin-top:7px}.metric .sub{font-size:12px;color:var(--muted);margin-top:3px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px}
+.panel h2{font-size:17px;margin:0 0 12px}.rules{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rule{padding:12px 14px;border-radius:10px;background:#f7f9fc;border:1px solid #e6ecf3;font-size:13px;line-height:1.6}
+.rule strong{display:block;margin-bottom:3px}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+input{min-width:220px;flex:1;border:1px solid #cbd5e1;border-radius:9px;padding:11px 13px;font-size:14px;outline-color:#497ba5}
+button{border:0;border-radius:9px;padding:11px 15px;background:var(--navy);color:#fff;font-weight:700;cursor:pointer}
+button.secondary{background:#e8eef5;color:#203b55}button:hover{filter:brightness(.96)}
+.count{margin-left:auto;color:var(--muted);font-size:13px;font-weight:650}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:10px}
+table{width:100%;border-collapse:collapse;min-width:920px;font-size:13px}
+thead{background:#f0f4f8}th{color:#344054;text-align:left;font-weight:750;white-space:nowrap}
+th,td{padding:12px 13px;border-bottom:1px solid #e8edf3}tbody tr:last-child td{border-bottom:0}tbody tr:hover{background:#f8fbff}
+td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}td.date{white-space:nowrap}
+.pill{display:inline-flex;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:800;white-space:nowrap}
+.approved{background:#d9f5e5;color:#12633a}.rejected{background:#ffe2e0;color:#a3231b}.invalid{background:#fff0c2;color:#815500}.duplicate{background:#e7e7f9;color:#4b4595}
+.note{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.6}.empty{text-align:center;padding:30px;color:var(--muted)}
+@media(max-width:900px){.summary{grid-template-columns:repeat(2,minmax(0,1fr))}.summary .metric:last-child{grid-column:span 2}.rules{grid-template-columns:1fr}main{padding:0 12px 30px}.panel{padding:13px}}
+</style>
+</head>
+<body>
+<header><div class="kicker">LOCAL STARTUP VOUCHER · REVIEW CONSOLE</div><h1>청년 로컬창업 바우처 신청 심사</h1><p>신청 24건 · 신청자료 기준 자동 판정 및 중복 접수 확인</p></header>
+<main>
+<section class="summary" aria-label="심사 요약">
+<div class="metric"><div class="label">승인</div><div class="value" id="approvedCount">0건</div><div class="sub">한도 이내 신청</div></div>
+<div class="metric"><div class="label">반려</div><div class="value" id="rejectedCount">0건</div><div class="sub">한도 초과 신청</div></div>
+<div class="metric"><div class="label">심사불가</div><div class="value" id="invalidCount">0건</div><div class="sub">필수값 오류</div></div>
+<div class="metric"><div class="label">중복접수</div><div class="value" id="duplicateCount">0건</div><div class="sub">이전 신청 건</div></div>
+<div class="metric"><div class="label">승인 신청액 합계</div><div class="value" id="approvedAmount">0원</div><div class="sub">승인 건 신청액 합산</div></div>
+</section>
+<section class="panel">
+<h2>판정 기준</h2>
+<div class="rules">
+<div class="rule"><strong>한도액 및 기본 판정</strong>한도액 = 직원수 × 480,000원. 신청액이 한도액 이하이면 승인(한도액과 같아도 승인), 초과하면 반려합니다.</div>
+<div class="rule"><strong>심사불가</strong>직원수 또는 신청액이 비어 있거나 0 이하인 경우 심사불가로 분류합니다. 심사불가 건은 승인·반려 계산에서 제외합니다.</div>
+<div class="rule"><strong>중복접수</strong>동일 상호명이 2건 이상이면 신청일이 가장 최신인 건만 심사합니다. 이전 신청 건은 중복접수로 분류하며 승인·반려 계산에서 제외합니다.</div>
+<div class="rule"><strong>중복·오류 적용 순서</strong>동일 상호 중 최신 신청 건을 먼저 확정한 뒤 필수값과 한도액을 판정합니다. 직원수 오류가 있는 경우 한도액은 ‘—’로 표시합니다.</div>
+</div>
+</section>
+<section class="panel">
+<div class="toolbar">
+<input id="search" type="search" placeholder="상호명 검색…" aria-label="상호명 검색">
+<button id="sortBtn" type="button">신청액 내림차순 정렬</button>
+<button id="resetBtn" class="secondary" type="button">초기화</button>
+<span class="count" id="visibleCount">표시 24건 / 전체 24건</span>
+</div>
+<div class="tablewrap">
+<table>
+<thead><tr><th>상호명</th><th>업종</th><th>직원수</th><th style="text-align:right">신청액</th><th style="text-align:right">한도액</th><th>신청일</th><th>판정</th></tr></thead>
+<tbody id="rows"></tbody>
+</table>
+<div id="empty" class="empty" hidden>검색 결과가 없습니다.</div>
+</div>
+<div class="note">※ 금액 단위는 원입니다. 본 페이지는 제공된 신청목록을 기준으로 판정을 자동 계산하며, 별도 증빙 검토 결과는 반영하지 않습니다.</div>
+</section>
+</main>
+<script>
+const source = [{"상호명": "한밭공방", "업종": "공예", "소재동": "중앙동", "직원수": 5, "신청액": 2400000, "신청일": "2026-11-18"}, {"상호명": "두루미분식", "업종": "분식", "소재동": "중앙동", "직원수": 5, "신청액": 2450000, "신청일": "2026-11-18"}, {"상호명": "바다풍경수산", "업종": "수산", "소재동": "항구동", "직원수": "", "신청액": 1900000, "신청일": "2026-11-19"}, {"상호명": "별헤는밤서점", "업종": "서적", "소재동": "성안동", "직원수": 3, "신청액": -800000, "신청일": "2026-11-20"}, {"상호명": "초원야채", "업종": "청과", "소재동": "시장동", "직원수": 2, "신청액": 900000, "신청일": "2026-11-17"}, {"상호명": "황금손정육", "업종": "정육", "소재동": "시장동", "직원수": 4, "신청액": 2100000, "신청일": "2026-11-19"}, {"상호명": "달무리찻집", "업종": "카페", "소재동": "중앙동", "직원수": 3, "신청액": 1400000, "신청일": "2026-11-21"}, {"상호명": "푸른바람세탁", "업종": "세탁", "소재동": "성안동", "직원수": 2, "신청액": 950000, "신청일": "2026-11-18"}, {"상호명": "고운결미용실", "업종": "미용", "소재동": "중앙동", "직원수": 3, "신청액": 1500000, "신청일": "2026-11-22"}, {"상호명": "새벽빵집", "업종": "제과", "소재동": "성안동", "직원수": 4, "신청액": 1900000, "신청일": "2026-11-20"}, {"상호명": "들녘반찬", "업종": "반찬", "소재동": "항구동", "직원수": 3, "신청액": 1420000, "신청일": "2026-11-19"}, {"상호명": "한올수선", "업종": "수선", "소재동": "시장동", "직원수": 1, "신청액": 470000, "신청일": "2026-11-21"}, {"상호명": "돌샘철물", "업종": "철물", "소재동": "성안동", "직원수": 3, "신청액": 1430000, "신청일": "2026-11-23"}, {"상호명": "연필과지우개", "업종": "문구", "소재동": "중앙동", "직원수": 2, "신청액": 940000, "신청일": "2026-11-24"}, {"상호명": "솔향약초", "업종": "약재", "소재동": "시장동", "직원수": 4, "신청액": 1850000, "신청일": "2026-11-20"}, {"상호명": "들꽃자리화원", "업종": "화훼", "소재동": "성안동", "직원수": 3, "신청액": 1440000, "신청일": "2026-11-25"}, {"상호명": "이슬찻잔도예", "업종": "공예", "소재동": "항구동", "직원수": 2, "신청액": 980000, "신청일": "2026-11-26"}, {"상호명": "미르식당", "업종": "한식", "소재동": "중앙동", "직원수": 6, "신청액": 2800000, "신청일": "2026-11-22"}, {"상호명": "섬마을건어물", "업종": "건어물", "소재동": "항구동", "직원수": 4, "신청액": 1880000, "신청일": "2026-11-24"}, {"상호명": "가온책방", "업종": "서적", "소재동": "성안동", "직원수": 2, "신청액": 930000, "신청일": "2026-11-25"}, {"상호명": "동트는국수", "업종": "한식", "소재동": "시장동", "직원수": 4, "신청액": 1870000, "신청일": "2026-11-26"}, {"상호명": "윤슬유리공예", "업종": "공예", "소재동": "중앙동", "직원수": 3, "신청액": 1380000, "신청일": "2026-11-27"}, {"상호명": "청춘피자", "업종": "양식", "소재동": "중앙동", "직원수": 5, "신청액": 2300000, "신청일": "2026-11-15"}, {"상호명": "청춘피자", "업종": "양식", "소재동": "중앙동", "직원수": 5, "신청액": 2400000, "신청일": "2026-11-28"}];
+const money = n => Number(n).toLocaleString('ko-KR') + '원';
+const isBlank = v => v === null || v === undefined || (typeof v === 'string' && v.trim() === '');
+const numeric = v => !isBlank(v) && Number.isFinite(Number(v));
+const groups = new Map();
+source.forEach((r,i)=>{const k=String(r['상호명']??'').trim(); if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(i);});
+const latestIndex = new Map();
+for(const [name,idxs] of groups){
+  const sorted = [...idxs].sort((a,b)=>{
+    const da=String(source[a]['신청일']??''), db=String(source[b]['신청일']??'');
+    return db.localeCompare(da) || b-a;
+  });
+  latestIndex.set(name,sorted[0]);
+}
+const judged = source.map((r,i)=>{
+  const name=String(r['상호명']??'').trim();
+  const employeeValid=numeric(r['직원수']) && Number(r['직원수'])>0;
+  const amountValid=numeric(r['신청액']) && Number(r['신청액'])>0;
+  let decision, limit=null;
+  if(latestIndex.get(name)!==i) decision='중복접수';
+  else if(!employeeValid || !amountValid) decision='심사불가';
+  else {limit=Number(r['직원수'])*480000; decision=Number(r['신청액'])<=limit?'승인':'반려';}
+  return {...r,_index:i,_decision:decision,_limit:limit};
+});
+const counts={'승인':0,'반려':0,'심사불가':0,'중복접수':0};
+let approvedSum=0;
+judged.forEach(r=>{counts[r._decision]++;if(r._decision==='승인') approvedSum+=Number(r['신청액']);});
+document.getElementById('approvedCount').textContent=counts['승인']+'건';
+document.getElementById('rejectedCount').textContent=counts['반려']+'건';
+document.getElementById('invalidCount').textContent=counts['심사불가']+'건';
+document.getElementById('duplicateCount').textContent=counts['중복접수']+'건';
+document.getElementById('approvedAmount').textContent=money(approvedSum);
+const cls={'승인':'approved','반려':'rejected','심사불가':'invalid','중복접수':'duplicate'};
+let sorted=false;
+function render(){
+ const q=document.getElementById('search').value.trim().toLocaleLowerCase('ko-KR');
+ let items=judged.filter(r=>String(r['상호명']??'').toLocaleLowerCase('ko-KR').includes(q));
+ if(sorted) items.sort((a,b)=>Number(b['신청액']||0)-Number(a['신청액']||0)||a._index-b._index);
+ document.getElementById('visibleCount').textContent=`표시 ${items.length}건 / 전체 ${judged.length}건`;
+ const tbody=document.getElementById('rows');
+ tbody.innerHTML=items.map(r=>{
+   const employee=numeric(r['직원수'])?Number(r['직원수']).toLocaleString('ko-KR'):'—';
+   const amount=numeric(r['신청액'])?money(Number(r['신청액'])):(isBlank(r['신청액'])?'—':String(r['신청액']));
+   const limit=r._limit===null?'—':money(r._limit);
+   return `<tr><td><strong>${esc(r['상호명'])}</strong></td><td>${esc(r['업종']??'—')}</td><td>${employee}</td><td class="num">${amount}</td><td class="num">${limit}</td><td class="date">${esc(r['신청일']??'—')}</td><td><span class="pill ${cls[r._decision]}">${r._decision}</span></td></tr>`;
+ }).join('');
+ document.getElementById('empty').hidden=items.length!==0;
+}
+function esc(v){return String(v??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+document.getElementById('search').addEventListener('input',render);
+document.getElementById('sortBtn').addEventListener('click',()=>{sorted=!sorted;document.getElementById('sortBtn').textContent=sorted?'신청액 내림차순 적용 중':'신청액 내림차순 정렬';render();});
+document.getElementById('resetBtn').addEventListener('click',()=>{document.getElementById('search').value='';sorted=false;document.getElementById('sortBtn').textContent='신청액 내림차순 정렬';render();});
+render();
+</script>
+</body></html>
